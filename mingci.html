@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:,">
+<title>名词解释 · 章节每日计划</title>
+<style>
+:root{
+  --ink:#2A3440; --ink2:#66717E; --bg:#EDF1F5; --sheet:#FFFFFF; --line:#DDE3EA; --rule:#C2CCD7;
+  --seal:#B23A2E; --ok:#2E7B55; --okbg:#E4F0E9; --warn:#A06B16; --note:#3D5F80;
+  --c1:#3E6B9B; --c2:#A06B16; --c3:#3B7B73; --focus:#0B6BCB;
+  --r-sm:10px; --r-md:14px; --r-lg:22px; --r-pill:999px; --soft:0 8px 24px rgba(32,38,46,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;line-height:1.6}
+button,input,select{font-family:inherit;font-size:100%}
+.mast{background:var(--ink);color:#fff;max-width:920px;margin:14px auto 0;border-radius:var(--r-lg);border:1px solid #35404E;box-shadow:var(--soft)}
+.mast-inner{max-width:880px;margin:0 auto;padding:16px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.mast .brand{font-size:16px;font-weight:700;letter-spacing:.08em}
+.mast .sub{font-size:11.5px;color:#B9C4D0;width:100%}
+.mast .links{margin-left:auto;display:flex;gap:8px}
+.mast .links a{font-size:13px;color:#fff;text-decoration:none;border:1px solid #68737F;border-radius:var(--r-pill);padding:7px 14px;white-space:nowrap}
+.mast .links a:hover{border-color:#fff}
+main{max-width:880px;margin:0 auto;padding:14px 12px 80px}
+.panel{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--soft);padding:14px 16px;margin-bottom:16px}
+.dateband{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.dateband .d{font-weight:800;font-size:19px}
+.dateband .d small{display:block;font-weight:400;font-size:11.5px;color:var(--ink2)}
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:var(--r-pill);padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;display:inline-block;text-decoration:none}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.warn{background:#fff;border-color:var(--warn);color:var(--warn)}
+.btn.danger{background:#fff;border-color:#E2C4BF;color:var(--seal)}
+.btn.ghost{background:#fff;color:var(--ink2)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.small{padding:5px 11px;font-size:12px}
+.rules{font-size:12px;color:var(--ink2);background:#F7F9FB;border:1px dashed var(--rule);border-radius:var(--r-md);padding:9px 13px;margin-top:12px}
+.rules b{color:var(--note)}
+.subject{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--sheet);box-shadow:var(--soft);margin-bottom:16px;overflow:hidden}
+.subj-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:13px 16px 11px;border-bottom:1px solid var(--line)}
+.subj-head .dot{width:12px;height:12px;border-radius:50%;flex:0 0 auto}
+.subj-head h2{margin:0;font-size:17px;display:flex;align-items:center;gap:8px}
+.state{padding:2px 10px;border-radius:var(--r-pill);font-size:12px;font-weight:600;white-space:nowrap}
+.state.todo{background:#FFF4E5;color:var(--warn)}
+.state.done{background:var(--okbg);color:var(--ok)}
+.state.defer{background:#FDEBEA;color:var(--seal)}
+.state.fin{background:#E7EEF6;color:var(--note)}
+.subj-head .meta{margin-left:auto;font-size:12px;color:var(--ink2);text-align:right}
+.chap-title{padding:12px 16px 4px;font-size:15px;font-weight:700}
+.chap-title small{color:var(--ink2);font-weight:400;margin-left:8px}
+.subj-actions{display:flex;gap:8px;flex-wrap:wrap;padding:8px 16px 12px}
+.terms{padding:2px 16px 14px}
+.term{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:8px;overflow:hidden}
+.term .qrow{display:flex;align-items:flex-start;gap:8px;padding:9px 12px;cursor:pointer}
+.term .qrow .idx{color:var(--ink2);font-size:12px;min-width:24px}
+.term .qrow .q{font-weight:600;font-size:13.5px}
+.term .qrow .tag{margin-left:auto;font-size:10.5px;color:var(--ink2);background:#F0F3F7;border-radius:4px;padding:1px 6px;white-space:nowrap}
+.term .qrow .tag.o{color:#B26A00;background:#FFF3E2}
+.term .qrow .tag.s{color:var(--note);background:#EAF1F9}
+.term .qrow .tag.d{color:#666}
+.term .ans{display:none;padding:9px 13px;background:#F7F9FC;border-top:1px dashed var(--line);font-size:13px;line-height:1.85;color:#26303B}
+.term .ans.open{display:block}
+.term .ans .alabel{font-size:11px;color:#8A6D1A;font-weight:700;margin-bottom:3px}
+.term .ans p{margin:0 0 6px}
+.foot{text-align:center;color:#aaa;font-size:12px;padding:6px}
+@media (max-width:640px){.mast{max-width:100%;border-radius:0;margin-top:0}.subject{border-radius:var(--r-md)}}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="mast-inner">
+    <div>
+      <div class="brand">📖 名词解释 · 章节每日计划</div>
+      <div class="sub">三科独立推进 · 每章节一天 · 完成当日章节后次日再推下一章</div>
+    </div>
+    <div class="links">
+      <a href="recite.html">背题 + 测验</a>
+      <a href="index.html">← 每日计划</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="panel">
+    <div class="dateband">
+      <div class="d"><span id="todayText"></span><small id="weekText"></small></div>
+      <div class="ctrl" style="margin-left:auto;margin-top:0">
+        <button class="btn warn" id="btnDeferAll">把今日计划推迟到明天</button>
+        <button class="btn ghost" id="btnSettings">⚙️ 进度设置</button>
+        <button class="btn danger" id="btnReset">重置</button>
+      </div>
+    </div>
+    <div class="rules" id="ruleNote">规则：每天每科各推 1 个章节（一天最多 3 章）。当日章节<span style="color:var(--warn);font-weight:600">未完成</span>则第二天继续推同一章节；<span style="color:var(--ok);font-weight:600">完成后</span>第二天才推送下一章节。「推迟到明天」＝把今日待背章节顺延到明天。</div>
+    <div id="settingsPanel" class="rules hidden" style="margin-top:10px"></div>
+  </div>
+  <div id="subjects"></div>
+  <div class="foot">学习进度保存在本浏览器 localStorage · 点击名词可展开/收起参考答案</div>
+</main>
+
+<script src="mingci_data.js"></script>
+<script>
+"use strict";
+var SUBJ_COLOR = {"运动训练学":"#A06B16","运动生理学":"#3B7B73","学校体育学":"#3E6B9B"};
+var LS_KEY = "mingci_v1";
+
+/* ---------- state ---------- */
+function loadState(){
+  var raw = null;
+  try{ raw = localStorage.getItem(LS_KEY); }catch(e){}
+  if(raw){ try{ return JSON.parse(raw); }catch(e){} }
+  return defaultState();
+}
+function defaultState(){
+  var s = {};
+  MINGCI_DATA.forEach(function(o){ s[o.s] = {history:[]}; });
+  return {ver:1, subs:s};
+}
+function saveState(st){ try{ localStorage.setItem(LS_KEY, JSON.stringify(st)); }catch(e){} }
+
+function todayStr(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function weekStr(){ var d=new Date(); var w=["日","一","二","三","四","五","六"]; return "星期"+w[d.getDay()]; }
+function fmtDate(s){ if(!s) return ""; var p=s.split("-"); return p[0]+"年"+parseInt(p[1],10)+"月"+parseInt(p[2],10)+"日"; }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+
+function subjectStatus(o, st, today){
+  var sub = st.subs[o.s] || {history:[]};
+  var total = o.chapters.length;
+  var done = sub.history.length;
+  var last = sub.history.length ? sub.history[sub.history.length-1] : null;
+  var lastToday = !!(last && last.d === today);
+  var finished = done >= total;
+  var status = {done:done, total:total, lastToday:lastToday, finished:finished,
+                cur: (finished ? null : o.chapters[done]),
+                next: (lastToday && !finished ? o.chapters[done] : null)};
+  return status;
+}
+
+/* ---------- render ---------- */
+function $(id){ return document.getElementById(id); }
+function render(){
+  var today = todayStr();
+  $("todayText").textContent = today;
+  $("weekText").textContent = weekStr();
+  var st = loadState();
+  var wrap = $("subjects");
+  wrap.innerHTML = "";
+  MINGCI_DATA.forEach(function(o){
+    var stt = subjectStatus(o, st, today);
+    var card = document.createElement("div");
+    card.className = "subject";
+    var col = SUBJ_COLOR[o.s] || "#666";
+    var stateEl;
+    if(stt.finished){ stateEl = '<span class="state fin">🎉 全部完成</span>'; }
+    else if(stt.lastToday){ stateEl = '<span class="state done">今日已完成</span>'; }
+    else if((st.subs[o.s]||{}).defer === today){ stateEl = '<span class="state defer">已推迟至明天</span>'; }
+    else { stateEl = '<span class="state todo">今日待背</span>'; }
+
+    var head = '<div class="subj-head"><span class="dot" style="background:'+col+'"></span><h2>'+esc(o.s)+'</h2>'+stateEl+
+      '<div class="meta">进度 '+stt.done+' / '+stt.total+' 章</div></div>';
+    card.innerHTML = head;
+    var body = document.createElement("div");
+
+    if(stt.finished){
+      var fin = document.createElement("div");
+      fin.className = "chap-title"; fin.innerHTML = "🎉 三科独立进度中，本学科全部章节已完成";
+      body.appendChild(fin);
+    } else if(stt.lastToday){
+      var doneCh = o.chapters[stt.done-1];
+      var d1 = document.createElement("div");
+      d1.className = "chap-title";
+      d1.innerHTML = "✔ 今日已完成：第 "+stt.done+" 章　"+esc(doneCh.t)+"<small>"+doneCh.items.length+" 个名词</small>";
+      body.appendChild(d1);
+      var n1 = document.createElement("div");
+      n1.className = "chap-title";
+      n1.innerHTML = "明日将推送：第 "+(stt.done+1)+" 章　"+esc(stt.next.t)+"<small>"+stt.next.items.length+" 个名词</small>";
+      body.appendChild(n1);
+      // undo today
+      var act = document.createElement("div"); act.className="subj-actions";
+      var b = document.createElement("button"); b.className="btn danger small"; b.textContent="撤销今日完成（回退到上一章）";
+      b.addEventListener("click", function(){ undoToday(o.s); });
+      act.appendChild(b); body.appendChild(act);
+    } else {
+      var ch = stt.cur;
+      var d2 = document.createElement("div");
+      d2.className = "chap-title";
+      d2.innerHTML = "今日章节：第 "+(stt.done+1)+" 章　"+esc(ch.t)+"<small>共 "+ch.items.length+" 个名词</small>";
+      body.appendChild(d2);
+      var act2 = document.createElement("div"); act2.className="subj-actions";
+      var b1 = document.createElement("button"); b1.className="btn ok small"; b1.textContent="✔ 完成本章背诵";
+      b1.addEventListener("click", function(){ completeChapter(o.s); });
+      act2.appendChild(b1);
+      var b2 = document.createElement("button"); b2.className="btn warn small"; b2.textContent="推迟到明天";
+      b2.addEventListener("click", function(){ deferSubject(o.s); });
+      act2.appendChild(b2);
+      body.appendChild(act2);
+      var terms = document.createElement("div"); terms.className="terms";
+      ch.items.forEach(function(it, idx){
+        var tagHtml = "";
+        if(it.c === "o"){ tagHtml = '<span class="tag o">原题库补充</span>'; }
+        else if(it.c === "4"){ tagHtml = '<span class="tag d">第四版</span>'; }
+        var t = document.createElement("div"); t.className="term";
+        t.innerHTML = '<div class="qrow"><span class="idx">'+(idx+1)+'</span><span class="q">'+esc(it.q)+'</span>'+tagHtml+'<span class="caret" style="color:#999">▾</span></div>'+
+          '<div class="ans"><div class="alabel">参考答案</div><p>'+esc(it.a).replace(/\n/g,"</p><p>")+'</p></div>';
+        var ans = t.querySelector(".ans");
+        t.querySelector(".qrow").addEventListener("click", function(){
+          ans.classList.toggle("open");
+          t.querySelector(".caret").textContent = ans.classList.contains("open") ? "▴" : "▾";
+        });
+        terms.appendChild(t);
+      });
+      body.appendChild(terms);
+    }
+    card.appendChild(body);
+    wrap.appendChild(card);
+  });
+  renderSettings(st);
+  refreshAllDone();
+}
+
+function renderSettings(st){
+  var box = $("settingsPanel");
+  if(box.classList.contains("hidden")) return;
+  var html = '<b>当前进度设置（已完成章数，用于接续旧进度）：</b><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">';
+  MINGCI_DATA.forEach(function(o){
+    var stt = subjectStatus(o, st, todayStr());
+    html += '<label style="font-size:13px">'+esc(o.s)+' <select id="set_'+esc(o.s)+'" style="padding:4px 6px;border:1px solid #bbb;border-radius:6px">';
+    for(var i=0;i<=o.chapters.length;i++){ html += '<option value="'+i+'"'+(i===stt.done?" selected":"")+'>已完成 '+i+' 章</option>'; }
+    html += '</select></label>';
+  });
+  html += '<button class="btn small primary" id="btnSaveSet">保存</button></div>';
+  box.innerHTML = html;
+  $("btnSaveSet").addEventListener("click", function(){ saveSettings(st); });
+}
+
+function saveSettings(st){
+  MINGCI_DATA.forEach(function(o){
+    var sel = $("set_"+o.s);
+    if(!sel) return;
+    var n = parseInt(sel.value,10);
+    var sub = st.subs[o.s]; sub.history = [];
+    // set done chapters at previous days so today isn't considered finished today
+    for(var i=0;i<n;i++){ sub.history.push({d:"2000-01-01", i:i}); }
+    sub.defer = null;
+  });
+  saveState(st); render();
+}
+
+function completeChapter(subj){
+  var st = loadState(); var today = todayStr();
+  var o = MINGCI_DATA.filter(function(x){return x.s===subj;})[0];
+  if(!o) return;
+  var sub = st.subs[subj]; if(!sub){ sub = st.subs[subj] = {history:[]}; }
+  if(sub.history.length >= o.chapters.length){ alert("本学科章节已全部完成"); return; }
+  if(sub.history.length && sub.history[sub.history.length-1].d === today){
+    alert("今日该科章节已完成，明日才会推送下一章"); return;
+  }
+  sub.history.push({d:today, i:sub.history.length});
+  sub.defer = null;
+  saveState(st); render();
+}
+function undoToday(subj){
+  var st = loadState(); var today = todayStr();
+  var sub = st.subs[subj]; if(!sub || !sub.history.length) return;
+  var last = sub.history[sub.history.length-1];
+  if(last.d !== today){ alert("只能撤销今天刚完成的章节"); return; }
+  if(!confirm("撤销今天完成的「"+subj+"」章节？")) return;
+  sub.history.pop();
+  saveState(st); render();
+}
+function deferSubject(subj){
+  var st = loadState(); var today = todayStr();
+  var sub = st.subs[subj] || (st.subs[subj]={history:[]});
+  var o = MINGCI_DATA.filter(function(x){return x.s===subj;})[0];
+  if(sub.history.length >= o.chapters.length) return;
+  sub.defer = today;
+  saveState(st); render();
+}
+$("btnDeferAll").addEventListener("click", function(){
+  var st = loadState(); var today = todayStr(); var changed = 0;
+  MINGCI_DATA.forEach(function(o){
+    var sub = st.subs[o.s] || (st.subs[o.s]={history:[]});
+    var last = sub.history.length ? sub.history[sub.history.length-1] : null;
+    if(sub.history.length < o.chapters.length && !(last && last.d===today)){
+      sub.defer = today; changed++;
+    }
+  });
+  if(changed){ saveState(st); render(); }
+  else { alert("今日没有待背章节需要推迟（可能已完成）。"); }
+});
+$("btnReset").addEventListener("click", function(){
+  if(!confirm("确定清空名词解释章节计划的全部进度？")) return;
+  localStorage.removeItem(LS_KEY);
+  render();
+});
+$("btnSettings").addEventListener("click", function(){
+  var box = $("settingsPanel");
+  box.classList.toggle("hidden");
+  if(!box.classList.contains("hidden")) renderSettings(loadState());
+});
+function refreshAllDone(){
+  // keep mast etc fine
+}
+(function init(){ render(); })();
+</script>
+</body>
+</html>

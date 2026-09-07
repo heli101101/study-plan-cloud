@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2A3440">
+<title>艾宾浩斯每日学习计划 · 训练单</title>
+<style>
+  :root{
+    --ink:#2A3440;          /* 墨 */
+    --ink2:#66717E;         /* 次要墨 */
+    --bg:#EDF1F5;           /* 页面底 */
+    --sheet:#FFFFFF;        /* 卡片/答题纸 */
+    --line:#DDE3EA;         /* 细线 */
+    --rule:#C2CCD7;         /* 稍重的线 */
+    --seal:#B23A2E;         /* 红：补卡/警示/危险 */
+    --ok:#2E7B55;           /* 绿：完成/掌握 */
+    --okbg:#E4F0E9;         /* 完成浅底 */
+    --warn:#A06B16;         /* 琥珀：部分对/提示 */
+    --note:#3D5F80;         /* 蓝：书中补充/复习 */
+    --c1:#3E6B9B;           /* 学校体育学 */
+    --c2:#A06B16;           /* 运动训练学 */
+    --c3:#3B7B73;           /* 运动生理学 */
+    --focus:#0B6BCB;
+    --r-sm:10px; --r-md:14px; --r-lg:22px; --r-pill:999px;
+    --soft:0 8px 24px rgba(32,38,46,.08);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);line-height:1.6}
+  button,input{font-family:inherit;font-size:100%}
+  ::selection{background:#D7E3EE}
+
+  /* ---------- 顶栏：训练单抬头 ---------- */
+  .mast{background:var(--ink);color:var(--sheet);max-width:920px;margin:14px auto 0;border-radius:var(--r-lg);border:1px solid #35404E;box-shadow:var(--soft)}
+  .mast-inner{max-width:880px;margin:0 auto;padding:16px 18px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .mast .brand{font-size:15px;font-weight:700;letter-spacing:.12em;color:#fff}
+  .mast .sub{font-size:11.5px;color:#B9C4D0}
+  .mast .to-recite{margin-left:0;font-size:13px;color:#fff;text-decoration:none;border:1px solid #68737F;border-radius:var(--r-pill);padding:7px 14px}
+  .mast .to-mingci{margin-left:auto;font-size:13px;color:#FFE3B3;text-decoration:none;border:1px solid #C9A45C;border-radius:var(--r-pill);padding:7px 14px;background:rgba(201,164,92,.12);white-space:nowrap}
+  .mast .to-mingci:hover{border-color:#FFE3B3;color:#fff}
+  .mast .to-recite:hover{border-color:#fff}
+
+  /* ---------- 日期表头 ---------- */
+  .sheet{background:var(--sheet);max-width:920px;margin:12px auto 16px;border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--soft);overflow:hidden}
+  .head{max-width:880px;margin:0 auto;padding:16px 16px 12px}
+  .dateband{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .daynum{font-size:58px;font-weight:800;line-height:.9;letter-spacing:-.02em;font-family:var(--ui);min-width:86px}
+  .daymeta{font-size:15px;font-weight:600}
+  .daymeta small{display:block;font-weight:400;color:var(--ink2);font-size:12.5px;margin-top:2px}
+  .planfield{margin-left:auto;text-align:right;font-size:12.5px;color:var(--ink2)}
+  .planfield b{display:block;font-size:15px;color:var(--ink);font-weight:700}
+  .planfield .rhythm{margin-top:6px;display:flex;gap:6px;justify-content:flex-end}
+  .planfield .rhythm i{font-style:normal;font-size:10.5px;color:var(--ink2);border:1px solid var(--line);border-radius:2px;padding:2px 5px}
+  .planfield .rhythm i.hot{border-color:var(--seal);color:var(--seal);font-weight:700}
+  .controls{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
+  .controls label{font-size:12.5px;color:var(--ink2)}
+  .controls input[type=date]{border:1px solid var(--rule);border-radius:var(--r-md);background:#fff;padding:7px 10px;color:var(--ink)}
+  .btn{border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:var(--r-pill);padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
+  .btn:hover{border-color:var(--ink)}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+  .btn.danger{color:var(--seal);border-color:#E2C4BF;background:#fff}
+  .btn.danger:hover{border-color:var(--seal)}
+  .btn:disabled{opacity:.5;cursor:default}
+  :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+  main{max-width:880px;margin:0 auto;padding:14px 12px 72px}
+  .topline{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .sum{font-size:13.5px;color:var(--ink2)}
+  .sum b{color:var(--ink);font-weight:700}
+  .track{height:6px;background:#DCE3EB;border-radius:var(--r-pill);overflow:hidden;margin:10px 0 16px}
+  .track i{display:block;height:100%;width:0;background:var(--ok);border-radius:var(--r-pill);transition:width .35s ease}
+  .note-line{font-size:11.5px;color:var(--ink2)}
+
+  /* ---------- 三科记分条 ---------- */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);background:var(--sheet);border-radius:var(--r-lg);overflow:hidden;margin-bottom:20px;box-shadow:var(--soft)}
+  .card{position:relative;padding:13px 12px;border-right:1px solid var(--line);min-width:0}
+  .card:last-child{border-right:0}
+  .card b{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink)}
+  .card b::before{content:"";width:8px;height:8px;border-radius:3px;background:#9AA7B5}
+  .card .big{font-size:24px;font-weight:800;line-height:1.15;font-variant-numeric:tabular-nums}
+  .card .sub{font-size:11px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card.done .big{color:var(--ok)}
+  .card[data-subject="学校体育学"] b::before{background:var(--c1)}
+  .card[data-subject="运动训练学"] b::before{background:var(--c2)}
+  .card[data-subject="运动生理学"] b::before{background:var(--c3)}
+
+  /* ---------- 提示横幅 ---------- */
+  .today-banner{border:1px solid #EFDAD6;border-left:4px solid var(--seal);background:#FBF1EF;color:#6E3A32;padding:10px 14px;font-size:13px;border-radius:var(--r-md);margin-bottom:18px}
+  .today-banner.gray{border-left-color:#8A97A5;background:#F1F5F9;color:var(--ink2)}
+
+  /* ---------- 科目登记区 ---------- */
+  .subject{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r-lg);padding:10px;margin:0 0 20px;box-shadow:var(--soft)}
+  .subject h2{margin:2px 2px 8px;display:flex;align-items:center;gap:8px;padding:4px 6px 10px;font-size:14.5px;font-weight:700;border-bottom:1px solid var(--line)}
+  .subject h2 span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:8px;background:#9AA7B5;vertical-align:1px}
+  .subject[data-subject="学校体育学"] h2 span::before{background:var(--c1)}
+  .subject[data-subject="运动训练学"] h2 span::before{background:var(--c2)}
+  .subject[data-subject="运动生理学"] h2 span::before{background:var(--c3)}
+  .subject h2 .cnt{margin-left:auto;font-size:12px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums}
+
+  /* ---------- 任务行：答题卡涂卡项 ---------- */
+  .task{position:relative;display:block;padding:12px 12px 12px 40px;border:1px solid var(--line);border-radius:var(--r-md);margin:7px 2px;cursor:pointer;background:#fff;box-shadow:0 2px 8px rgba(32,38,46,.03)}
+  .task:last-child{margin-bottom:4px}
+  .task:hover{background:#F4F8FC;border-color:#C7D3E0}
+  .task::before{content:"";position:absolute;left:14px;top:15px;width:15px;height:15px;border:1.6px solid var(--rule);border-radius:5px;background:#fff;transition:background .15s,border-color .15s}
+  .task.done::before{background:var(--ok);border-color:var(--ok)}
+  .task.done::after{content:"";position:absolute;left:17px;top:18px;width:7px;height:4px;border-left:1.8px solid var(--sheet);border-bottom:1.8px solid var(--sheet);transform:rotate(-45deg)}
+  .tline{display:flex;align-items:flex-start;gap:8px}
+  .badge{flex:none;font-size:10.5px;font-weight:700;border-radius:var(--r-pill);padding:3px 9px;margin-top:1px;white-space:nowrap}
+  .badge.new{background:var(--okbg);color:var(--ok)}
+  .badge.rev{background:#E7EDF5;color:var(--note)}
+  .badge.overdue{background:#F7E9E6;color:var(--seal)}
+  .qtitle{flex:1;font-family:var(--serif);font-size:15px;line-height:1.55;color:var(--ink)}
+  .task.done .qtitle{color:var(--ink2);text-decoration:line-through;text-decoration-color:#B9C4D0}
+  .btns{flex:none;display:flex;gap:6px;margin-top:1px}
+  .mini{font-size:12px;border:1px solid var(--rule);background:#fff;color:var(--ink2);border-radius:var(--r-pill);padding:5px 12px;cursor:pointer}
+  .mini:hover{border-color:var(--ink);color:var(--ink)}
+  .mini.on{background:var(--okbg);border-color:#A9CFB8;color:var(--ok)}
+  .tag{font-size:11px;color:var(--seal);border:1px solid #E5B9B2;background:#FDF4F2;border-radius:var(--r-pill);padding:2px 8px;margin-left:6px;white-space:nowrap;font-family:var(--ui)}
+  .meta{font-size:11.5px;color:#8A95A1;margin-top:4px;font-family:var(--ui)}
+  .task.done .meta{color:#AAB2BC}
+
+  /* ---------- 参考答案：展开的答题纸 ---------- */
+  .answer{display:none;margin-top:10px;padding:12px 14px;background:#F6F9FC;border:1px solid #E2E9F1;border-left:4px solid var(--note);border-radius:var(--r-md);font-family:var(--serif);font-size:14.5px;line-height:1.85;color:#2B3440}
+  .answer.open{display:block;animation:fold .18s ease}
+  @keyframes fold{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+  .answer .alhead{font-weight:700;margin:7px 0 1px;color:var(--ink);font-family:var(--ui);font-size:13.5px}
+  .answer .alhead:first-child{margin-top:0}
+  .answer .altext{margin:2px 0}
+  .answer .alnote{color:var(--note);font-size:13px;margin:4px 0 4px 16px;padding-left:8px;border-left:2px solid #D8E2EC}
+  .answer .noans{color:var(--seal)}
+
+  /* ---------- 底部工具栏 / 空状态 / 页脚 ---------- */
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 18px}
+  #loadInfo{font-size:12px;color:var(--ink2);margin-left:auto}
+  .empty{background:var(--sheet);border:1.5px dashed var(--rule);padding:32px 18px;text-align:center;color:var(--ink2);font-size:14px;border-radius:var(--r-lg);margin-bottom:18px;box-shadow:var(--soft)}
+  footer{text-align:center;color:#8A95A1;font-size:11.5px;padding:14px 16px 22px;max-width:880px;margin:0 auto}
+
+  @media (max-width:560px){
+    .daynum{font-size:46px}
+    .cards{gap:0;border-radius:18px}
+    .card{padding:10px 8px}
+    .card .big{font-size:20px}
+    .planfield{margin-left:0;text-align:left;width:100%;border-top:1px dashed var(--line);padding-top:8px;margin-top:2px}
+    .planfield .rhythm{justify-content:flex-start}
+    .qtitle{font-size:14px}
+    .answer{font-size:14px;border-radius:12px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important}
+  }
+</style>
+<link rel="icon" href="data:,">
+</head>
+<body>
+<header class="mast">
+  <div class="mast-inner">
+    <span class="brand">艾宾浩斯每日学习计划</span>
+    <span class="sub">体育考研 · 四轮复习 1 / 3 / 7 / 15</span>
+    <a class="to-mingci" href="mingci.html">📖 名词解释计划</a>
+      <a class="to-recite" href="recite.html">背题 + 测验</a>
+  </div>
+</header>
+
+<section class="sheet" aria-label="日期与进度">
+  <div class="head">
+    <div class="dateband">
+      <div>
+        <div class="daynum" id="dayNum">--</div>
+        <div class="daymeta" id="dayMeta"></div>
+      </div>
+      <div class="planfield">
+        <b id="dayNo">训练日</b>
+        <div id="startInfo" style="font-size:12px;color:#59636F;margin-top:2px;"></div>
+        <div class="rhythm" id="rhythm" aria-hidden="true"></div>
+      </div>
+    </div>
+    <div class="controls">
+      <label for="dateInput">查看日期</label>
+      <input type="date" id="dateInput">
+      <button class="btn" id="btnToday" type="button">回到今天</button>
+      <button class="btn primary" id="btnAll" type="button">本日全部完成</button>
+      <button class="btn danger" id="btnReset" type="button">重置进度</button>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="topline">
+    <span class="sum" id="sumTxt"></span>
+    <span class="note-line" id="loadInfo"></span>
+  </div>
+  <div class="track" aria-hidden="true"><i id="bar"></i></div>
+
+  <div id="todayBanner" class="today-banner" style="display:none;"></div>
+  <div id="cards" class="cards"></div>
+  <div id="list"></div>
+  <div id="empty" class="empty" style="display:none;"></div>
+
+</main>
+<footer>完成进度保存在本机服务端 study.db，手机与电脑同步 · 点任务行完成 / 再点取消 · 点“答案”展开参考答案</footer>
+
+<script src="bank_data.js"></script>
+<script>
+
+"use strict";
+var META = null;
+var state = { date: null, tasks: [], summary: null };
+var $ = function(id){ return document.getElementById(id); };
+
+function fmtDate(iso){
+  var d = new Date(iso + "T00:00:00");
+  var w = ["日","一","二","三","四","五","六"][d.getDay()];
+  return (d.getMonth()+1) + "月" + d.getDate() + "日 周" + w;
+}
+function shortDate(iso){ return iso.slice(5).replace("-", "月") + "日"; }
+function kindClass(k){ return k === "new" ? "new" : "rev"; }
+
+
+function paintHead(){
+  if(!META) return;
+  var d = $("dayNum"), m = $("dayMeta"), n = $("dayNo"), rh = $("rhythm");
+  var ds = state.date || META.today;
+  if(d){ d.textContent = ds.slice(8,10); }
+  if(m){ m.textContent = fmtDate(ds); }
+  var start = new Date(META.settings.start_date + "T00:00:00");
+  var cur = new Date(ds + "T00:00:00");
+  var day = Math.round((cur - start) / 86400000) + 1;
+  if(n){ n.textContent = day >= 1 ? "第 " + day + " 个训练日" : "开训准备"; }
+  if(rh){
+    var html = "";
+    META.settings.intervals.forEach(function(off){
+      var due = new Date(start.getTime() + (day - 1) * 86400000 - off * 86400000);
+      var hot = state.tasks.some(function(t){ return t.kind === "rev" + off; });
+      var label = "复习·第" + off + "天";
+      html += "<i" + (hot ? " class=\"hot\"" : "") + ">" + label + "</i>";
+    });
+    rh.innerHTML = html;
+  }
+}
+
+function paintProgress(){
+  var bar = $("bar"), txt = $("sumTxt");
+  var s = state.summary;
+  if(!s) return;
+  if(bar){
+    var pct = s.total ? Math.round(s.done * 100 / s.total) : 0;
+    bar.style.width = pct + "%";
+  }
+  if(txt){
+    var over = s.overdue > 0 ? " · 还有 " + s.overdue + " 项补卡" : "";
+    txt.innerHTML = "已完成 <b>" + s.done + " / " + s.total + "</b> 项" + over;
+  }
+}
+
+async function loadMeta(){
+  META = await api("/api/meta");
+  $("dateInput").max = "2999-12-31";
+  var si = $("startInfo");
+  if(si){
+    si.textContent = "起训 " + META.settings.start_date + " · " +
+      "学体" + META.settings.daily["学校体育学"] + "题/天 · 运训" + META.settings.daily["运动训练学"] +
+      "题/天 · 生理" + META.settings.daily["运动生理学"] + "题/天";
+  }
+  if(!state.date){ state.date = META.today; $("dateInput").value = META.today; }
+}
+
+async function load(dateStr){
+  state.date = dateStr || $("dateInput").value || (META && META.today);
+  $("dateInput").value = state.date;
+  $("loadInfo").textContent = "加载中…";
+  try{
+    var data = await api("/api/today?date=" + encodeURIComponent(state.date));
+    state.tasks = data.tasks; state.summary = data.summary;
+    paintHead();
+    render();
+    paintProgress();
+    $("loadInfo").textContent = "更新于 " + new Date().toLocaleTimeString("zh-CN", {hour:"2-digit", minute:"2-digit"});
+  }catch(err){
+    $("loadInfo").textContent = "加载失败：" + err.message;
+  }
+}
+
+function groupTasks(){
+  var order = META.settings.subject_order;
+  var map = {}; order.forEach(function(s){ map[s] = []; });
+  state.tasks.forEach(function(t){ if(map[t.subject]) map[t.subject].push(t); });
+  return order.map(function(s){ return {subject:s, tasks:map[s]}; }).filter(function(g){ return g.tasks.length > 0; });
+}
+
+function render(){
+  var groups = groupTasks();
+  var banner = $("todayBanner"), empty = $("empty");
+  if(state.date < META.settings.start_date){
+    banner.style.display = "block";
+    banner.className = "today-banner gray";
+    banner.innerHTML = "计划尚未开始：第 1 天为 <b>" + META.settings.start_date + "</b>，当天起每天放出 学体3 / 运训4 / 生理5 道新题，并按四轮曲线安排复习。";
+  } else if(state.date > META.today){
+    banner.style.display = "block";
+    banner.className = "today-banner";
+    banner.innerHTML = "正在查看未来日期（" + fmtDate(state.date) + "）——此页为任务预告，当天打开才会显示补卡。";
+  } else if(state.date === META.today){
+    banner.style.display = "none";
+  } else {
+    banner.style.display = "block";
+    banner.className = "today-banner gray";
+    banner.innerHTML = "查看历史日期（" + fmtDate(state.date) + "）：当日已完成任务以灰色删除线显示。";
+  }
+  renderCards(groups);
+  renderGroups(groups);
+  var has = groups.length > 0;
+  empty.style.display = has ? "none" : "block";
+  empty.innerHTML = groups.length === 0 ? (state.date < META.settings.start_date
+     ? "计划还未开始，请把日期切到 " + META.settings.start_date + " 查看第 1 天任务。"
+     : "这一天没有待办任务（所有任务已完成或当日无排期）。") : "";
+}
+
+function renderCards(groups){
+  var wrap = $("cards"); wrap.innerHTML = "";
+  var order = META.settings.subject_order;
+  order.forEach(function(subj){
+    var all = state.tasks.filter(function(t){ return t.subject === subj; });
+    var done = all.filter(function(t){ return t.done; }).length;
+    var short = META.short[subj];
+    var div = document.createElement("div");
+    div.className = "card" + (all.length > 0 && done === all.length ? " done" : "");
+    div.setAttribute("data-subject", subj);
+    var b = document.createElement("b"); b.textContent = short;
+    var big = document.createElement("div"); big.className = "big";
+    big.textContent = all.length > 0 ? (done + "/" + all.length) : "—";
+    var sub = document.createElement("div"); sub.className = "sub";
+    sub.textContent = all.length > 0 ? (done === all.length ? "今日已完成" : "剩 " + (all.length - done) + " 项") : "今日无任务";
+    div.appendChild(b); div.appendChild(big); div.appendChild(sub);
+    wrap.appendChild(div);
+  });
+}
+
+function renderGroups(groups){
+  var list = $("list"); list.innerHTML = "";
+  groups.forEach(function(g){
+    var sec = document.createElement("section");
+    sec.className = "subject";
+    sec.setAttribute("data-subject", g.subject);
+    var h = document.createElement("h2");
+    var sp = document.createElement("span"); sp.textContent = g.subject;
+    var done = g.tasks.filter(function(t){ return t.done; }).length;
+    var cnt = document.createElement("span"); cnt.className = "cnt";
+    cnt.textContent = "完成 " + done + " / " + g.tasks.length;
+    h.appendChild(sp); h.appendChild(cnt); sec.appendChild(h);
+    g.tasks.forEach(function(t){ sec.appendChild(taskEl(t)); });
+    list.appendChild(sec);
+  });
+}
+
+function taskEl(t){
+  var div = document.createElement("div");
+  div.className = "task" + (t.done ? " done" : "");
+  var tline = document.createElement("div"); tline.className = "tline";
+  var badge = document.createElement("span");
+  badge.className = "badge " + (t.overdue ? "overdue" : kindClass(t.kind));
+  badge.textContent = t.overdue ? "补卡" : t.kind_label;
+  var q = document.createElement("div"); q.className = "qtitle";
+  q.textContent = "#" + t.num + "　" + t.title;
+  if(t.overdue){
+    var tag = document.createElement("span"); tag.className = "tag";
+    tag.textContent = "原计划 " + shortDate(t.due_date);
+    q.appendChild(tag);
+  }
+  var btns = document.createElement("div"); btns.className = "btns";
+  var ans = document.createElement("button"); ans.type = "button"; ans.className = "mini"; ans.textContent = "答案";
+  btns.appendChild(ans);
+  tline.appendChild(badge); tline.appendChild(q); tline.appendChild(btns);
+  div.appendChild(tline);
+  var meta = document.createElement("div"); meta.className = "meta";
+  var parts = [];
+  if(t.chapter) parts.push("章节：" + t.chapter);
+  if(t.src_date) parts.push("资料日期：" + t.src_date);
+  if(parts.length) meta.textContent = parts.join("　");
+  div.appendChild(meta);
+  var ansBox = document.createElement("div"); ansBox.className = "answer";
+  if(t.has_answer){
+    t.body.forEach(function(line){
+      var txt = (line || "").trim();
+      var d = document.createElement("div");
+      if(txt.indexOf("※书中补充") === 0 || txt.indexOf("※出处") === 0){ d.className = "alnote"; }
+      else if(/^[（(]?[0-9０-９一二三四五六七八九十百]+[)）]?[.．、]/.test(txt) || /^[①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳]/.test(txt) || /^[一二三四五六七八九十]+、/.test(txt)){ d.className = "alhead"; }
+      else { d.className = "altext"; }
+      d.textContent = line;
+      ansBox.appendChild(d);
+    });
+  } else {
+    ansBox.className += " open";
+    var no = document.createElement("div"); no.className = "altext noans";
+    no.textContent = "（原资料未提供该题答案）";
+    ansBox.appendChild(no);
+    ans.disabled = true; ans.textContent = "无答案";
+  }
+  div.appendChild(ansBox);
+  ans.addEventListener("click", function(ev){
+    ev.stopPropagation();
+    ansBox.classList.toggle("open");
+    ans.textContent = ansBox.classList.contains("open") ? "收起" : "答案";
+  });
+  div.addEventListener("click", function(){ toggleTask(t, div); });
+  return div;
+}
+
+async function toggleTask(t, el){
+  var next = !t.done;
+  t.done = next;
+  try{
+    await post("/api/tasks", {subject:t.subject, num:t.num, kind:t.kind, due_date:t.due_date, done:next});
+    if(next){ el.classList.add("done"); } else { el.classList.remove("done"); }
+    render();
+    paintProgress();
+  }catch(err){
+    t.done = !next;
+    $("loadInfo").textContent = "保存失败：" + err.message;
+  }
+}
+
+$("btnToday").addEventListener("click", function(){ $("dateInput").value = META.today; load(META.today); });
+$("dateInput").addEventListener("change", function(){ load($("dateInput").value); });
+$("btnAll").addEventListener("click", async function(){
+  if(!state.tasks.length){ return; }
+  var todo = state.tasks.filter(function(t){ return !t.done; });
+  if(!todo.length){ alert("今日任务已全部完成 ✔"); return; }
+  if(!confirm("将本日显示的 " + todo.length + " 项未完成任务全部标记为完成？")){ return; }
+  $("loadInfo").textContent = "保存中…";
+  try{
+    for(var i = 0; i < todo.length; i++){
+      var t = todo[i];
+      await post("/api/tasks", {subject:t.subject, num:t.num, kind:t.kind, due_date:t.due_date, done:true});
+    }
+    await load(state.date);
+  }catch(err){ $("loadInfo").textContent = "部分保存失败：" + err.message; }
+});
+$("btnReset").addEventListener("click", async function(){
+  if(!confirm("确定重置全部完成进度？所有已勾选任务将恢复为未完成（题目与排期不变）。此操作不可撤销。")){ return; }
+  if(!confirm("再次确认：真的要清空全部进度吗？")){ return; }
+  try{
+    await post("/api/reset", {confirm:"reset"});
+    await load(state.date);
+    alert("已重置进度");
+  }catch(err){ alert("重置失败：" + err.message); }
+});
+
+
+
+"use strict";
+var META = null;
+var state = { date: null, tasks: [], summary: null };
+var $ = function(id){ return document.getElementById(id); };
+var LS_DKEY = "cloud_daily_v1";
+var SUBJECT_SHORT = {"学校体育学":"学体","运动训练学":"运训","运动生理学":"生理"};
+var KIND_LABEL = {"new":"新学","rev1":"复习·第1天","rev3":"复习·第3天","rev7":"复习·第7天","rev15":"复习·第15天"};
+
+function pad2(n){ return n < 10 ? "0"+n : ""+n; }
+function localTodayISO(){ var d = new Date(); return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
+function fmtDate(iso){
+  var d = new Date(iso + "T00:00:00");
+  var w = ["日","一","二","三","四","五","六"][d.getDay()];
+  return (d.getMonth()+1) + "月" + d.getDate() + "日 周" + w;
+}
+function shortDate(iso){ return iso.slice(5).replace("-", "月") + "日"; }
+function kindClass(k){ return k === "new" ? "new" : "rev"; }
+
+/* ---------- 进度存储 ---------- */
+function taskKey(t){ return t.subject + "|" + t.num + "|" + t.kind + "|" + t.due_date; }
+function getDoneSet(){
+  try{
+    var raw = localStorage.getItem(LS_DKEY);
+    if(raw){ return new Set(JSON.parse(raw)); }
+  }catch(e){}
+  var set = new Set();
+  if(typeof CLOUD_INITIAL_DONE !== "undefined" && CLOUD_INITIAL_DONE.length){
+    CLOUD_INITIAL_DONE.forEach(function(k){ set.add(k); });
+    saveDoneSet(set);
+  }
+  return set;
+}
+function saveDoneSet(set){ try{ localStorage.setItem(LS_DKEY, JSON.stringify(Array.from(set))); }catch(e){} }
+
+/* ---------- 排期（与本地服务端一致） ---------- */
+function dAdd(iso, n){
+  var d = new Date(iso + "T00:00:00");
+  d.setDate(d.getDate() + n);
+  return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
+}
+function introDate(it, st){
+  var off = it.num - st.starts[it.subject];
+  var day = Math.floor(off / st.daily[it.subject]);
+  return dAdd(st.start_date, day);
+}
+function occurrences(it, st){
+  var intro = introDate(it, st);
+  var delay = parseInt(st.new_delay || 0, 10);
+  var nd_from = st.new_delay_from || "";
+  var ndate = intro;
+  if(delay > 0 && nd_from && intro >= nd_from){ ndate = dAdd(intro, delay); }
+  var occs = [["new", ndate]];
+  (st.intervals || []).forEach(function(off){ occs.push(["rev"+off, dAdd(intro, off)]); });
+  return occs;
+}
+function dayView(datestr){
+  var st = CLOUD_SETTINGS, D = datestr, done = getDoneSet();
+  var order = {}; st.subject_order.forEach(function(s,i){ order[s]=i; });
+  var items = CLOUD_ITEMS.slice().sort(function(a,b){
+    return (order[a.subject]-order[b.subject]) || (a.num-b.num);
+  });
+  var tasks = [];
+  items.forEach(function(it){
+    occurrences(it, st).forEach(function(pair){
+      var kind = pair[0], occ = pair[1];
+      var t = {subject:it.subject, num:it.num, title:it.title, body:it.body||[],
+               chapter:it.chapter||"", src_date:it.date||it.src_date||"",
+               kind:kind, kind_label:KIND_LABEL[kind]||kind, due_date:occ,
+               has_answer: !!((it.body||[]).length)};
+      var key = it.subject+"|"+it.num+"|"+kind+"|"+occ;
+      if(occ === D){ t.overdue = false; t.done = done.has(key); tasks.push(t); }
+      else if(occ < D && !done.has(key)){ t.overdue = true; t.done = false; tasks.push(t); }
+    });
+  });
+  var kind_order = {"new":0};
+  st.intervals.forEach(function(off,i){ kind_order["rev"+off] = i+1; });
+  tasks.sort(function(a,b){
+    return (order[a.subject]-order[b.subject]) ||
+           ((a.overdue?0:1)-(b.overdue?0:1)) ||
+           ((kind_order[a.kind]||9)-(kind_order[b.kind]||9)) ||
+           (a.num-b.num);
+  });
+  return tasks;
+}
+function summarize(tasks){
+  var tot = tasks.length, done = 0, new_tot = 0, new_done = 0, overdue = 0;
+  tasks.forEach(function(t){
+    if(t.done) done++;
+    if(t.kind === "new"){ new_tot++; if(t.done) new_done++; }
+    if(t.overdue) overdue++;
+  });
+  return {total:tot, done:done, new_total:new_tot, new_done:new_done,
+          rev_total:tot-new_tot, rev_done:done-new_done, overdue:overdue};
+}
+
+/* ---------- 覆盖：不再请求服务器 ---------- */
+async function api(url, opts){ return {ok:true}; }
+async function post(url, body){
+  if(url === "/api/reset"){
+    if(body && body.confirm === "reset"){ try{ localStorage.removeItem(LS_DKEY); }catch(e){} }
+    return {ok:true};
+  }
+  var set = getDoneSet();
+  var k = (body.subject||"")+"|"+(body.num||"")+"|"+(body.kind||"")+"|"+(body.due_date||"");
+  if(body.done){ set.add(k); } else { set.delete(k); }
+  saveDoneSet(set);
+  return {ok:true};
+}
+
+function loadMeta(){
+  META = {settings: CLOUD_SETTINGS, today: localTodayISO(), short: SUBJECT_SHORT};
+  $("dateInput").max = "2999-12-31";
+  var si = $("startInfo");
+  if(si){
+    si.textContent = "起训 " + META.settings.start_date + " · " +
+      "学体" + META.settings.daily["学校体育学"] + "题/天 · 运训" + META.settings.daily["运动训练学"] +
+      "题/天 · 生理" + META.settings.daily["运动生理学"] + "题/天";
+  }
+  if(!state.date){ state.date = META.today; $("dateInput").value = META.today; }
+}
+
+function load(dateStr){
+  state.date = dateStr || $("dateInput").value || (META && META.today);
+  $("dateInput").value = state.date;
+  state.tasks = dayView(state.date);
+  state.summary = summarize(state.tasks);
+  paintHead();
+  render();
+  paintProgress();
+  $("loadInfo").textContent = "更新于 " + new Date().toLocaleTimeString("zh-CN", {hour:"2-digit", minute:"2-digit"}) + " · 云端本地版";
+}
+
+
+(function initCloud(){
+  try{ loadMeta(); load(state.date); }catch(err){
+    var e = document.getElementById('empty');
+    if(e){ e.style.display='block'; e.textContent='加载失败：'+err.message; }
+  }
+})();
+
+</script>
+</body>
+</html>
