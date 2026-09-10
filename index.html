@@ -496,10 +496,10 @@ function occurrences(it, st){
   var intro = introDate(it, st);
   var delay = parseInt(st.new_delay || 0, 10);
   var nd_from = st.new_delay_from || "";
-  var ndate = intro;
-  if(delay > 0 && nd_from && intro >= nd_from){ ndate = dAdd(intro, delay); }
-  var occs = [["new", ndate]];
-  (st.intervals || []).forEach(function(off){ occs.push(["rev"+off, dAdd(intro, off)]); });
+  var anchor = intro;
+  if(delay > 0 && nd_from && intro >= nd_from){ anchor = dAdd(intro, delay); }
+  var occs = [["new", anchor]];
+  (st.intervals || []).forEach(function(off){ occs.push(["rev"+off, dAdd(anchor, off)]); });
   return occs;
 }
 function dayView(datestr){
