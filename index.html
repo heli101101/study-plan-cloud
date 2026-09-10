@@ -512,6 +512,8 @@ function dayView(datestr){
   items.forEach(function(it){
     occurrences(it, st).forEach(function(pair){
       var kind = pair[0], occ = pair[1];
+      var nn = (st.no_new || {})[it.subject] || [];
+      if(kind === "new" && occ === D && nn.indexOf(D) >= 0){ return; }
       var t = {subject:it.subject, num:it.num, title:it.title, body:it.body||[],
                chapter:it.chapter||"", src_date:it.date||it.src_date||"",
                kind:kind, kind_label:KIND_LABEL[kind]||kind, due_date:occ,
