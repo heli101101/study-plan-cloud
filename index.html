@@ -452,7 +452,6 @@ var META = null;
 var state = { date: null, tasks: [], summary: null };
 var $ = function(id){ return document.getElementById(id); };
 var LS_DKEY = "cloud_daily_v1";
-var LS_DTIME = "cloud_daily_done_at_v1";
 var SUBJECT_SHORT = {"学校体育学":"学体","运动训练学":"运训","运动生理学":"生理"};
 var KIND_LABEL = {"new":"新学","rev1":"复习·第1天","rev3":"复习·第3天","rev7":"复习·第7天","rev15":"复习·第15天"};
 
@@ -466,43 +465,21 @@ function fmtDate(iso){
 function shortDate(iso){ return iso.slice(5).replace("-", "月") + "日"; }
 function kindClass(k){ return k === "new" ? "new" : "rev"; }
 
-/* ---------- 进度存储（含新学完成时间） ---------- */
-function loadStore(){
-  var keys = [], times = {};
-  try{ keys = JSON.parse(localStorage.getItem(LS_DKEY) || "[]") || []; }catch(e){}
-  try{ times = JSON.parse(localStorage.getItem(LS_DTIME) || "{}") || {}; }catch(e){}
-  var set = new Set(keys);
-  if(!keys.length && typeof CLOUD_INITIAL_DONE !== "undefined" && CLOUD_INITIAL_DONE.length){
-    CLOUD_INITIAL_DONE.forEach(function(k){ set.add(k); });
-    saveStore({keys:set, times:times});
-  }
-  return {keys:set, times:times};
-}
-function saveStore(store){
+/* ---------- 进度存储 ---------- */
+function taskKey(t){ return t.subject + "|" + t.num + "|" + t.kind + "|" + t.due_date; }
+function getDoneSet(){
   try{
-    localStorage.setItem(LS_DKEY, JSON.stringify(Array.from(store.keys)));
-    localStorage.setItem(LS_DTIME, JSON.stringify(store.times || {}));
+    var raw = localStorage.getItem(LS_DKEY);
+    if(raw){ return new Set(JSON.parse(raw)); }
   }catch(e){}
-}
-function kindPrefix(s,n,k){ return s + "|" + n + "|" + k + "|"; }
-function hasKind(store,s,n,k){
-  var p = kindPrefix(s,n,k), it = store.keys.values(), v = it.next();
-  while(!v.done){ if(v.value.indexOf(p) === 0){ return true; } v = it.next(); }
-  return false;
-}
-function newDoneDate(store,s,n){
-  var p = kindPrefix(s,n,"new"), best = null, it = store.keys.values(), v = it.next();
-  while(!v.done){
-    var key = v.value;
-    if(key.indexOf(p) === 0){
-      var t = store.times[key];
-      var d = t ? String(t).slice(0,10) : key.slice(p.length, p.length + 10);
-      if(/^\d{4}-\d{2}-\d{2}$/.test(d)){ if(!best || d < best){ best = d; } }
-    }
-    v = it.next();
+  var set = new Set();
+  if(typeof CLOUD_INITIAL_DONE !== "undefined" && CLOUD_INITIAL_DONE.length){
+    CLOUD_INITIAL_DONE.forEach(function(k){ set.add(k); });
+    saveDoneSet(set);
   }
-  return best;
+  return set;
 }
+function saveDoneSet(set){ try{ localStorage.setItem(LS_DKEY, JSON.stringify(Array.from(set))); }catch(e){} }
 
 /* ---------- 排期（与本地服务端一致） ---------- */
 function dAdd(iso, n){
@@ -526,67 +503,22 @@ function occurrences(it, st){
   return occs;
 }
 function dayView(datestr){
-  var st = CLOUD_SETTINGS, D = datestr, store = loadStore();
+  var st = CLOUD_SETTINGS, D = datestr, done = getDoneSet();
   var order = {}; st.subject_order.forEach(function(s,i){ order[s]=i; });
   var items = CLOUD_ITEMS.slice().sort(function(a,b){
     return (order[a.subject]-order[b.subject]) || (a.num-b.num);
   });
-  var bySubj = {}; st.subject_order.forEach(function(s){ bySubj[s]=[]; });
-  items.forEach(function(it){ if(bySubj[it.subject]){ bySubj[it.subject].push(it); } });
-  if(D < st.start_date){ return []; }
-  function isNewDone(it){ return hasKind(store, it.subject, it.num, "new"); }
-  function doneDate(it){ return newDoneDate(store, it.subject, it.num); }
-  var assigned = {}, pending = {}, pos = {};
-  st.subject_order.forEach(function(s){ pending[s]=[]; pos[s]=0; });
-  var d = st.start_date;
-  while(d < D){
-    st.subject_order.forEach(function(s){
-      pending[s] = pending[s].filter(function(it){ return doneDate(it) !== d; });
-    });
-    st.subject_order.forEach(function(s){
-      var q = st.daily[s], lst = bySubj[s];
-      var need = Math.max(0, q - pending[s].length), added = 0;
-      while(added < need && pos[s] < lst.length){
-        var it = lst[pos[s]++];
-        if(isNewDone(it)){ continue; }
-        pending[s].push(it);
-        assigned[s+"|"+it.num] = d;
-        added++;
-      }
-    });
-    d = dAdd(d, 1);
-  }
   var tasks = [];
-  function pushTask(it, kind, occ, overdue, done){
-    tasks.push({subject:it.subject, num:it.num, title:it.title, body:it.body||[],
-                chapter:it.chapter||"", src_date:it.date||it.src_date||"",
-                kind:kind, kind_label:KIND_LABEL[kind]||kind, due_date:occ,
-                overdue:overdue, done:done, has_answer: !!((it.body||[]).length)});
-  }
-  st.subject_order.forEach(function(s){
-    var q = st.daily[s], lst = bySubj[s];
-    var pend = pending[s].slice(0, q);
-    var need = Math.max(0, q - pend.length), added = 0;
-    while(added < need && pos[s] < lst.length){
-      var it = lst[pos[s]++];
-      if(isNewDone(it)){ continue; }
-      pend.push(it);
-      assigned[s+"|"+it.num] = D;
-      added++;
-    }
-    pend.forEach(function(it){
-      var a = assigned[s+"|"+it.num] || D;
-      pushTask(it, "new", a, a < D, doneDate(it) === D);
-    });
-    lst.forEach(function(it){
-      var anchor = doneDate(it);
-      if(!anchor){ return; }
-      (st.intervals||[]).forEach(function(off){
-        var kind = "rev"+off, occ = dAdd(anchor, off);
-        var kdone = hasKind(store, it.subject, it.num, kind);
-        if(occ === D){ pushTask(it, kind, occ, false, kdone); }
-        else if(occ < D && !kdone){ pushTask(it, kind, occ, true, false); }
-      });
+  items.forEach(function(it){
+    occurrences(it, st).forEach(function(pair){
+      var kind = pair[0], occ = pair[1];
+      var t = {subject:it.subject, num:it.num, title:it.title, body:it.body||[],
+               chapter:it.chapter||"", src_date:it.date||it.src_date||"",
+               kind:kind, kind_label:KIND_LABEL[kind]||kind, due_date:occ,
+               has_answer: !!((it.body||[]).length)};
+      var key = it.subject+"|"+it.num+"|"+kind+"|"+occ;
+      if(occ === D){ t.overdue = false; t.done = done.has(key); tasks.push(t); }
+      else if(occ < D && !done.has(key)){ t.overdue = true; t.done = false; tasks.push(t); }
     });
   });
   var kind_order = {"new":0};
@@ -615,22 +547,13 @@ function summarize(tasks){
 async function api(url, opts){ return {ok:true}; }
 async function post(url, body){
   if(url === "/api/reset"){
-    if(body && body.confirm === "reset"){
-      try{ localStorage.removeItem(LS_DKEY); localStorage.removeItem(LS_DTIME); }catch(e){}
-    }
+    if(body && body.confirm === "reset"){ try{ localStorage.removeItem(LS_DKEY); }catch(e){} }
     return {ok:true};
   }
-  var store = loadStore();
-  var prefix = kindPrefix(body.subject||"", body.num||"", body.kind||"");
-  Array.from(store.keys).forEach(function(k){
-    if(k.indexOf(prefix) === 0){ store.keys.delete(k); delete store.times[k]; }
-  });
-  if(body.done){
-    var k2 = prefix + (body.due_date||"");
-    store.keys.add(k2);
-    store.times[k2] = new Date().toISOString();
-  }
-  saveStore(store);
+  var set = getDoneSet();
+  var k = (body.subject||"")+"|"+(body.num||"")+"|"+(body.kind||"")+"|"+(body.due_date||"");
+  if(body.done){ set.add(k); } else { set.delete(k); }
+  saveDoneSet(set);
   return {ok:true};
 }
 
