@@ -498,6 +498,8 @@ function occurrences(it, st){
   var nd_from = st.new_delay_from || "";
   var anchor = intro;
   if(delay > 0 && nd_from && intro >= nd_from){ anchor = dAdd(intro, delay); }
+  var shift = parseInt((st.subject_shift || {})[it.subject] || 0, 10);
+  if(shift){ anchor = dAdd(anchor, shift); }
   var occs = [["new", anchor]];
   (st.intervals || []).forEach(function(off){ occs.push(["rev"+off, dAdd(anchor, off)]); });
   return occs;
