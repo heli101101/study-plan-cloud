@@ -505,6 +505,13 @@ function occurrences(it, st){
   if(shift){ anchor = dAdd(anchor, shift); }
   var occs = [["new", anchor]];
   (st.intervals || []).forEach(function(off){ occs.push(["rev"+off, dAdd(anchor, off)]); });
+  var rule = ((st.occurrence_shift || {})[it.subject] || {});
+  var days = parseInt(rule.days || 0, 10), shiftFrom = rule.from || "";
+  if(days && shiftFrom){
+    occs = occs.map(function(pair){
+      return [pair[0], pair[1] >= shiftFrom ? dAdd(pair[1], days) : pair[1]];
+    });
+  }
   return occs;
 }
 function dayView(datestr){
