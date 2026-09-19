@@ -37,9 +37,11 @@
   .mast .brand{font-size:15px;font-weight:700;letter-spacing:.12em;color:#fff}
   .mast .sub{font-size:11.5px;color:#B9C4D0}
   .mast .to-recite{margin-left:0;font-size:13px;color:#fff;text-decoration:none;border:1px solid #68737F;border-radius:var(--r-pill);padding:7px 14px}
+  .mast .to-tasks{margin-left:0;font-size:13px;color:#D9F4FF;text-decoration:none;border:1px solid #66A7C4;border-radius:var(--r-pill);padding:7px 14px;background:rgba(79,158,192,.12);white-space:nowrap}
   .mast .to-mingci{margin-left:auto;font-size:13px;color:#FFE3B3;text-decoration:none;border:1px solid #C9A45C;border-radius:var(--r-pill);padding:7px 14px;background:rgba(201,164,92,.12);white-space:nowrap}
   .mast .to-mingci:hover{border-color:#FFE3B3;color:#fff}
   .mast .to-recite:hover{border-color:#fff}
+  .mast .to-tasks:hover{border-color:#D9F4FF;color:#fff}
 .mast .to-mindmap{margin-left:0;font-size:13px;color:#fff;text-decoration:none;border:1px solid #68737F;border-radius:var(--r-pill);padding:7px 14px}
 .mast .to-mindmap:hover{border-color:#fff}
 
@@ -160,6 +162,7 @@
     <span class="brand">艾宾浩斯每日学习计划</span>
     <span class="sub">体育考研 · 四轮复习 1 / 3 / 7 / 15</span>
     <a class="to-mingci" href="mingci.html">📖 名词解释计划</a>
+      <a class="to-tasks" href="tasks.html">任务总表</a>
       <a class="to-recite" href="recite.html">背题 + 测验</a>
       <a class="to-mindmap" href="mindmap.html">🧠 思维导图</a>
   </div>
@@ -455,6 +458,8 @@ var META = null;
 var state = { date: null, tasks: [], summary: null };
 var $ = function(id){ return document.getElementById(id); };
 var LS_DKEY = "cloud_daily_v1";
+var LS_SEED_KEY = "cloud_initial_merge_v2";
+var LS_LEDGER_DATES = "cloud_ledger_completed_at_v1";
 var SUBJECT_SHORT = {"学校体育学":"学体","运动训练学":"运训","运动生理学":"生理"};
 var KIND_LABEL = {"new":"新学","rev1":"复习·第1天","rev3":"复习·第3天","rev7":"复习·第7天","rev15":"复习·第15天"};
 
@@ -471,14 +476,15 @@ function kindClass(k){ return k === "new" ? "new" : "rev"; }
 /* ---------- 进度存储 ---------- */
 function taskKey(t){ return t.subject + "|" + t.num + "|" + t.kind + "|" + t.due_date; }
 function getDoneSet(){
+  var set = new Set();
   try{
     var raw = localStorage.getItem(LS_DKEY);
-    if(raw){ return new Set(JSON.parse(raw)); }
+    if(raw){ JSON.parse(raw).forEach(function(k){ set.add(k); }); }
   }catch(e){}
-  var set = new Set();
-  if(typeof CLOUD_INITIAL_DONE !== "undefined" && CLOUD_INITIAL_DONE.length){
+  if(!localStorage.getItem(LS_SEED_KEY) && typeof CLOUD_INITIAL_DONE !== "undefined" && CLOUD_INITIAL_DONE.length){
     CLOUD_INITIAL_DONE.forEach(function(k){ set.add(k); });
     saveDoneSet(set);
+    try{ localStorage.setItem(LS_SEED_KEY, "1"); }catch(e){}
   }
   return set;
 }
@@ -561,13 +567,27 @@ function summarize(tasks){
 async function api(url, opts){ return {ok:true}; }
 async function post(url, body){
   if(url === "/api/reset"){
-    if(body && body.confirm === "reset"){ try{ localStorage.removeItem(LS_DKEY); }catch(e){} }
+    if(body && body.confirm === "reset"){
+      try{
+        localStorage.setItem(LS_DKEY, "[]");
+        localStorage.setItem(LS_SEED_KEY, "1");
+        localStorage.setItem(LS_LEDGER_DATES, "{}");
+      }catch(e){}
+    }
     return {ok:true};
   }
   var set = getDoneSet();
   var k = (body.subject||"")+"|"+(body.num||"")+"|"+(body.kind||"")+"|"+(body.due_date||"");
   if(body.done){ set.add(k); } else { set.delete(k); }
   saveDoneSet(set);
+  if(body.kind === "new"){
+    try{
+      var dates = JSON.parse(localStorage.getItem(LS_LEDGER_DATES) || "{}");
+      var mapKey = (body.subject||"")+"|"+(body.num||"");
+      if(body.done){ dates[mapKey] = localTodayISO(); } else { delete dates[mapKey]; }
+      localStorage.setItem(LS_LEDGER_DATES, JSON.stringify(dates));
+    }catch(e){}
+  }
   return {ok:true};
 }
 

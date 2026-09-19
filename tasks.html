@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>学科任务总表</title>
+  <style>
+    :root{
+      --ink:#17233a;--muted:#637086;--paper:#f5f7fb;--line:#dce3ee;--white:#fff;
+      --school:#3478d4;--training:#e47b32;--physiology:#2e9a72;
+      --shadow:0 12px 30px rgba(26,43,72,.08);--radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;color:var(--ink);background:var(--paper);font-family:"Microsoft YaHei UI","PingFang SC",sans-serif;line-height:1.55}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    .topbar{position:sticky;top:0;z-index:20;background:rgba(245,247,251,.94);backdrop-filter:blur(14px);border-bottom:1px solid rgba(220,227,238,.82)}
+    .topbar-inner{max-width:1240px;margin:auto;padding:13px 22px;display:flex;align-items:center;gap:10px;overflow-x:auto}
+    .brand{font-weight:900;white-space:nowrap;margin-right:auto;letter-spacing:.02em}
+    .nav{color:#48566c;text-decoration:none;border:1px solid var(--line);background:#fff;padding:7px 12px;border-radius:10px;white-space:nowrap;font-size:14px}
+    .nav.current{background:var(--ink);border-color:var(--ink);color:#fff}
+    main{max-width:1240px;margin:auto;padding:32px 22px 70px}
+    .hero{position:relative;overflow:hidden;color:#fff;background:#17233a;border-radius:24px;padding:30px 32px;box-shadow:var(--shadow)}
+    .hero:after{content:"";position:absolute;width:420px;height:420px;right:-180px;top:-225px;border:72px solid rgba(255,255,255,.055);border-radius:50%}
+    .hero-line{position:relative;z-index:1;display:flex;align-items:end;justify-content:space-between;gap:24px}
+    h1{margin:0;font-size:clamp(28px,4vw,45px);line-height:1.15;letter-spacing:.02em}
+    .lead{max-width:630px;margin:11px 0 0;color:#cbd5e7;font-size:15px}
+    .today{flex:none;text-align:right;color:#d7e0ef}.today strong{display:block;color:#fff;font-size:19px}
+    .metrics{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px}
+    .metric{min-height:96px;padding:17px 18px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.12);border-radius:15px}
+    .metric b{display:block;font-size:28px;line-height:1.2;font-variant-numeric:tabular-nums}.metric span{display:block;margin-top:6px;color:#c9d4e7;font-size:13px}
+    .review-panel{margin-top:20px;padding:22px 24px;border:2px solid #f1c864;background:#fff9e8;border-radius:20px}
+    .review-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}.review-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:#f5c94c;font-size:21px}
+    h2{font-size:21px;margin:0}.review-head p{margin:2px 0 0;color:#776834;font-size:13px}
+    .review-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .review-item{display:flex;gap:10px;align-items:flex-start;padding:12px 13px;background:#fff;border:1px solid #ead99f;border-radius:12px}
+    .review-item b{flex:none;color:#92720c}.review-item span{font-size:14px}.review-item small{display:block;color:var(--muted);margin-top:2px}
+    .review-empty{padding:14px 4px;color:#746b4e;font-size:14px}
+    .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:24px 0 18px}
+    .search{position:relative;flex:1;min-width:250px}.search input{width:100%;border:1px solid var(--line);border-radius:13px;background:#fff;padding:11px 14px 11px 40px;outline:none}.search input:focus{border-color:#7083a4;box-shadow:0 0 0 3px rgba(67,96,143,.10)}
+    .search:before{content:"⌕";position:absolute;left:14px;top:7px;font-size:24px;color:#718097}
+    .filters{display:flex;gap:7px;overflow-x:auto;padding:2px}
+    .filter{white-space:nowrap;border:1px solid var(--line);background:#fff;color:#526077;border-radius:11px;padding:9px 12px}.filter.active{color:#fff;background:var(--ink);border-color:var(--ink)}
+    .subject-tabs{display:flex;gap:8px;overflow-x:auto;margin-bottom:20px;padding-bottom:2px}
+    .subject-tab{white-space:nowrap;border:0;background:#e7ebf2;color:#4d5b70;border-radius:999px;padding:9px 15px;font-weight:700}
+    .subject-tab.active{background:var(--ink);color:#fff}
+    .subject-block{margin:22px 0 28px}.subject-head{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;margin-bottom:11px}
+    .subject-mark{width:7px;height:44px;border-radius:7px}.subject-title h2{font-size:21px}.subject-title p{margin:2px 0 0;color:var(--muted);font-size:13px}
+    .subject-count{font-weight:800;font-variant-numeric:tabular-nums}
+    .progress{grid-column:2/4;height:7px;background:#e2e7ef;border-radius:10px;overflow:hidden}.progress i{display:block;height:100%;border-radius:10px;transition:width .25s ease}
+    .task-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .task{display:grid;grid-template-columns:50px minmax(0,1fr) auto;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:14px;padding:13px 14px;box-shadow:0 3px 10px rgba(31,48,78,.035)}
+    .task.done{background:#f9fbfd}.task.today-done{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 12%,transparent)}
+    .task-num{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:color-mix(in srgb,var(--accent) 11%,white);color:var(--accent);font-size:14px;font-weight:900}
+    .task-main{min-width:0}.task-title{font-weight:800;line-height:1.4}.task-meta{display:flex;flex-wrap:wrap;gap:5px 9px;color:var(--muted);font-size:12px;margin-top:5px}.status{font-weight:800}.status.done{color:#34765e}.status.today{color:var(--accent)}
+    .toggle{width:38px;height:38px;display:grid;place-items:center;border:1.5px solid #bdc7d6;background:#fff;color:transparent;border-radius:12px;font-size:20px;font-weight:900}.toggle:hover{border-color:var(--accent)}.toggle.checked{color:#fff;background:var(--accent);border-color:var(--accent)}.toggle:disabled{opacity:.45;cursor:wait}
+    .empty{display:none;text-align:center;color:var(--muted);padding:46px 10px;background:#fff;border:1px dashed #c8d0dd;border-radius:16px}
+    .loading{padding:60px;text-align:center;color:var(--muted)}
+    .toast{position:fixed;left:50%;bottom:28px;z-index:30;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#17233a;color:#fff;padding:10px 16px;border-radius:11px;box-shadow:var(--shadow);transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
+    .school{--accent:var(--school)}.training{--accent:var(--training)}.physiology{--accent:var(--physiology)}
+    @media(max-width:760px){
+      .topbar-inner{padding:10px 14px}.brand{display:none}main{padding:19px 13px 55px}.hero{padding:23px 19px;border-radius:19px}.hero-line{display:block}.today{text-align:left;margin-top:16px}.metrics{grid-template-columns:1fr 1fr}.metric:first-child{grid-column:1/3}.metric{min-height:80px;padding:14px}.metric b{font-size:24px}
+      .review-panel{padding:17px 15px}.review-list,.task-grid{grid-template-columns:1fr}.toolbar{margin-top:19px}.filters{width:100%}.subject-head{gap:10px}.task{grid-template-columns:43px minmax(0,1fr) auto;padding:11px 10px;gap:9px}.task-num{width:39px;height:39px}.task-title{font-size:14px}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar"><div class="topbar-inner">
+    <div class="brand">学习任务台账</div>
+    <a class="nav" href="index.html">今日计划</a>
+    <a class="nav current" href="tasks.html">任务总表</a>
+    <a class="nav" href="recite.html">背题 + 测验</a>
+    <a class="nav" href="mingci.html">名词解释</a>
+  </div></header>
+  <main>
+    <section class="hero">
+      <div class="hero-line"><div><h1>每一科，都清清楚楚</h1><p class="lead">这里记录全部知识任务。今天勾选完成，明天会自动放入额外复习队列；原有 1、3、7、15 日复习计划照常保留。</p></div><div class="today"><span>今天</span><strong id="dateText">—</strong></div></div>
+      <div class="metrics"><div class="metric"><b id="allMetric">—</b><span>全部知识点进度</span></div><div class="metric"><b id="todayMetric">—</b><span>今天新完成</span></div><div class="metric"><b id="tomorrowMetric">—</b><span>明天额外复习</span></div></div>
+    </section>
+    <section class="review-panel"><div class="review-head"><div class="review-icon">↺</div><div><h2>今日额外复习</h2><p>昨天完成的知识点，今天趁热回看一遍</p></div></div><div id="reviewList" class="review-list"><div class="review-empty">正在读取复习任务…</div></div></section>
+    <div class="toolbar"><label class="search"><input id="searchInput" placeholder="搜索题号、标题或章节"></label><div class="filters"><button class="filter active" data-status="all">全部状态</button><button class="filter" data-status="todo">未完成</button><button class="filter" data-status="done">已完成</button></div></div>
+    <div id="subjectTabs" class="subject-tabs"></div>
+    <div id="content"><div class="loading">正在汇总各科任务…</div></div><div id="empty" class="empty">没有找到符合条件的任务</div>
+  </main>
+  <div id="toast" class="toast"></div>
+  <script src="bank_data.js"></script>
+  <script>
+  'use strict';
+  const SUBJECTS = ['学校体育学','运动训练学','运动生理学'];
+  const SUBJECT_CLASS = {'学校体育学':'school','运动训练学':'training','运动生理学':'physiology'};
+  const SUBJECT_SHORT = {'学校体育学':'学体','运动训练学':'运训','运动生理学':'生理'};
+  const DONE_KEY = 'cloud_daily_v1';
+  const DATE_KEY = 'cloud_ledger_completed_at_v1';
+  const SEED_KEY = 'cloud_initial_merge_v2';
+  const DATE_SEED_KEY = 'cloud_ledger_dates_seed_v1';
+  const cloudMode = typeof CLOUD_ITEMS !== 'undefined' && typeof CLOUD_SETTINGS !== 'undefined';
+  const state = {date:localToday(), items:[], review:[], counts:{}, subject:'all', status:'all', query:''};
+  const $ = id => document.getElementById(id);
+
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function localToday(){ const d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function dAdd(iso,n){ const d=new Date(iso+'T00:00:00'); d.setDate(d.getDate()+n); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function prettyDate(iso){ if(!iso) return ''; const p=iso.slice(0,10).split('-'); return p.length===3 ? `${Number(p[1])}月${Number(p[2])}日` : iso; }
+  function readJSON(key,fallback){ try{ const v=JSON.parse(localStorage.getItem(key)); return v==null?fallback:v; }catch(e){ return fallback; } }
+  function writeJSON(key,value){ try{ localStorage.setItem(key,JSON.stringify(value)); }catch(e){} }
+  function getDoneSet(){
+    const saved=readJSON(DONE_KEY,null);
+    const initial=typeof CLOUD_INITIAL_DONE!=='undefined'&&Array.isArray(CLOUD_INITIAL_DONE)?CLOUD_INITIAL_DONE:[];
+    const set=new Set(Array.isArray(saved)?saved:[]);
+    if(!localStorage.getItem(SEED_KEY)){ initial.forEach(k=>set.add(k)); try{localStorage.setItem(SEED_KEY,'1');}catch(e){} }
+    writeJSON(DONE_KEY,[...set]); return set;
+  }
+  function introDate(it,st){ const off=it.num-st.starts[it.subject]; return dAdd(st.start_date,Math.floor(off/st.daily[it.subject])); }
+  function newDue(it,st){
+    let due=introDate(it,st), delay=parseInt(st.new_delay||0,10), from=st.new_delay_from||'';
+    if(delay&&from&&due>=from) due=dAdd(due,delay);
+    const shift=parseInt((st.subject_shift||{})[it.subject]||0,10); if(shift) due=dAdd(due,shift);
+    const rule=((st.occurrence_shift||{})[it.subject]||{}), days=parseInt(rule.days||0,10);
+    if(days&&rule.from&&due>=rule.from) due=dAdd(due,days);
+    return due;
+  }
+  function cloudPayload(){
+    const done=getDoneSet(), dates=readJSON(DATE_KEY,{}), yesterday=dAdd(state.date,-1), counts={}, review=[];
+    if(!localStorage.getItem(DATE_SEED_KEY)&&typeof CLOUD_INITIAL_DONE_AT!=='undefined'&&CLOUD_INITIAL_DONE_AT){ Object.keys(CLOUD_INITIAL_DONE_AT).forEach(k=>{if(!dates[k])dates[k]=CLOUD_INITIAL_DONE_AT[k];}); writeJSON(DATE_KEY,dates); try{localStorage.setItem(DATE_SEED_KEY,'1');}catch(e){} }
+    SUBJECTS.forEach(s=>counts[s]={total:0,done:0});
+    const items=CLOUD_ITEMS.filter(it=>it.num>=(CLOUD_SETTINGS.starts[it.subject]||1)).slice().sort((a,b)=>SUBJECTS.indexOf(a.subject)-SUBJECTS.indexOf(b.subject)||a.num-b.num).map(it=>{
+      const due=newDue(it,CLOUD_SETTINGS), prefix=`${it.subject}|${it.num}|new|`, completed=[...done].some(k=>k.startsWith(prefix)), mapKey=`${it.subject}|${it.num}`, completedAt=dates[mapKey]||'';
+      const rec={subject:it.subject,num:it.num,title:it.title,chapter:it.chapter||'',src_date:it.date||it.src_date||'',completed,completed_at:completedAt,new_due_date:due};
+      if(!counts[it.subject]) counts[it.subject]={total:0,done:0}; counts[it.subject].total++;
+      if(completed){ counts[it.subject].done++; if(completedAt===yesterday) review.push(rec); }
+      return rec;
+    });
+    return {date:state.date,items,review,counts,subject_order:CLOUD_SETTINGS.subject_order||SUBJECTS};
+  }
+  async function load(){
+    try{
+      const data=cloudMode?cloudPayload():await fetch('/api/ledger?date='+encodeURIComponent(state.date),{cache:'no-store'}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'读取失败');return d;});
+      state.items=data.items||[]; state.review=data.review||[]; state.counts=data.counts||{}; renderAll();
+    }catch(err){ $('content').innerHTML=`<div class="empty" style="display:block">加载失败：${escapeHtml(err.message)}</div>`; }
+  }
+  async function toggle(item,button){
+    button.disabled=true; const next=!item.completed;
+    try{
+      if(cloudMode){
+        const done=getDoneSet(), dates=readJSON(DATE_KEY,{}), doneKey=`${item.subject}|${item.num}|new|${item.new_due_date}`, prefix=`${item.subject}|${item.num}|new|`, mapKey=`${item.subject}|${item.num}`;
+        if(next){ done.add(doneKey); dates[mapKey]=state.date; }else{ [...done].filter(k=>k.startsWith(prefix)).forEach(k=>done.delete(k)); delete dates[mapKey]; }
+        writeJSON(DONE_KEY,[...done]); writeJSON(DATE_KEY,dates);
+      }else{
+        const r=await fetch('/api/ledger',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject:item.subject,num:item.num,done:next})});
+        const data=await r.json(); if(!r.ok) throw new Error(data.error||'保存失败');
+      }
+      toast(next?'已完成，明天会提醒复习':'已取消完成'); await load();
+    }catch(err){ toast(err.message||'保存失败'); button.disabled=false; }
+  }
+  function renderAll(){ renderMetrics(); renderReview(); renderTabs(); renderTasks(); }
+  function renderMetrics(){
+    const total=state.items.length, done=state.items.filter(x=>x.completed).length, today=state.items.filter(x=>x.completed&&x.completed_at.slice(0,10)===state.date).length;
+    $('dateText').textContent=prettyDate(state.date); $('allMetric').textContent=`${done} / ${total}`; $('todayMetric').textContent=today; $('tomorrowMetric').textContent=today;
+  }
+  function renderReview(){
+    $('reviewList').innerHTML=state.review.length?state.review.map(x=>`<div class="review-item"><b>${SUBJECT_SHORT[x.subject]||x.subject} ${x.num}</b><span>${escapeHtml(x.title)}<small>${escapeHtml(x.chapter||'知识点复习')}</small></span></div>`).join(''):'<div class="review-empty">昨天没有新完成的任务，今天无需额外复习。</div>';
+  }
+  function renderTabs(){
+    const tabs=[['all','全部学科'],...SUBJECTS.map(s=>[s,s])];
+    $('subjectTabs').innerHTML=tabs.map(([v,t])=>`<button class="subject-tab${state.subject===v?' active':''}" data-subject="${v}">${t}</button>`).join('');
+    $('subjectTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{state.subject=b.dataset.subject;renderTabs();renderTasks();});
+  }
+  function filteredItems(){
+    const q=state.query.trim().toLowerCase();
+    return state.items.filter(x=>(state.subject==='all'||x.subject===state.subject)&&(state.status==='all'||(state.status==='done'?x.completed:!x.completed))&&(!q||String(x.num).includes(q)||x.title.toLowerCase().includes(q)||(x.chapter||'').toLowerCase().includes(q)));
+  }
+  function renderTasks(){
+    const visible=filteredItems(), groups={}; SUBJECTS.forEach(s=>groups[s]=[]); visible.forEach(x=>(groups[x.subject]||(groups[x.subject]=[])).push(x));
+    let html=''; SUBJECTS.forEach(subject=>{
+      const items=groups[subject]||[]; if(!items.length)return;
+      const all=state.items.filter(x=>x.subject===subject), done=all.filter(x=>x.completed).length, pct=all.length?Math.round(done/all.length*100):0, cls=SUBJECT_CLASS[subject]||'school';
+      html+=`<section class="subject-block ${cls}"><div class="subject-head"><i class="subject-mark" style="background:var(--accent)"></i><div class="subject-title"><h2>${subject}</h2><p>${done} 个已完成，${all.length-done} 个待完成</p></div><div class="subject-count">${pct}%</div><div class="progress"><i style="width:${pct}%;background:var(--accent)"></i></div></div><div class="task-grid">${items.map(x=>taskHtml(x,cls)).join('')}</div></section>`;
+    });
+    $('content').innerHTML=html; $('empty').style.display=html?'none':'block';
+    $('content').querySelectorAll('.toggle').forEach(b=>b.onclick=()=>toggle(state.items.find(x=>x.subject===b.dataset.subject&&String(x.num)===b.dataset.num),b));
+  }
+  function taskHtml(x,cls){
+    const today=x.completed&&x.completed_at.slice(0,10)===state.date, status=today?'今日完成':x.completed?'已完成':'未完成', statusClass=today?'today':x.completed?'done':'';
+    return `<article class="task ${cls}${x.completed?' done':''}${today?' today-done':''}"><div class="task-num">${x.num}</div><div class="task-main"><div class="task-title">${escapeHtml(x.title)}</div><div class="task-meta"><span>${escapeHtml(x.chapter||'未分章节')}</span><span class="status ${statusClass}">${status}</span>${x.completed_at?`<span>${prettyDate(x.completed_at)}完成</span>`:''}</div></div><button class="toggle${x.completed?' checked':''}" data-subject="${x.subject}" data-num="${x.num}" title="${x.completed?'取消完成':'标记完成'}">✓</button></article>`;
+  }
+  function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  let toastTimer; function toast(msg){ $('toast').textContent=msg; $('toast').classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>$('toast').classList.remove('show'),1900); }
+  $('searchInput').oninput=e=>{state.query=e.target.value;renderTasks();};
+  document.querySelectorAll('[data-status]').forEach(b=>b.onclick=()=>{state.status=b.dataset.status;document.querySelectorAll('[data-status]').forEach(x=>x.classList.toggle('active',x===b));renderTasks();});
+  load();
+  </script>
+</body>
+</html>
