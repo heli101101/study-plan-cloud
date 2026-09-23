@@ -518,6 +518,13 @@ function occurrences(it, st){
       return [pair[0], pair[1] >= shiftFrom ? dAdd(pair[1], days) : pair[1]];
     });
   }
+  var globalRule = st.global_occurrence_shift || {};
+  var globalDays = parseInt(globalRule.days || 0, 10), globalFrom = globalRule.from || "";
+  if(globalDays && globalFrom){
+    occs = occs.map(function(pair){
+      return [pair[0], pair[1] >= globalFrom ? dAdd(pair[1], globalDays) : pair[1]];
+    });
+  }
   return occs;
 }
 function dayView(datestr){

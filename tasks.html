@@ -117,6 +117,8 @@
     const shift=parseInt((st.subject_shift||{})[it.subject]||0,10); if(shift) due=dAdd(due,shift);
     const rule=((st.occurrence_shift||{})[it.subject]||{}), days=parseInt(rule.days||0,10);
     if(days&&rule.from&&due>=rule.from) due=dAdd(due,days);
+    const globalRule=st.global_occurrence_shift||{}, globalDays=parseInt(globalRule.days||0,10);
+    if(globalDays&&globalRule.from&&due>=globalRule.from) due=dAdd(due,globalDays);
     return due;
   }
   function cloudPayload(){
